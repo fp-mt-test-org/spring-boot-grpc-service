@@ -1,0 +1,6 @@
+apiVersion: v2
+name: spring-boot-grpc-service
+description: Chart for creating spring-boot-grpc-service and ingress mapping our Flexport EKS clusters
+
+type: application
+version: 0.1.0

@@ -34,3 +34,4 @@ build/
 
 ### devx ###
 .devx-workflows
+.flex

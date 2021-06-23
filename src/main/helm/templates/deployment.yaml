@@ -6,6 +6,7 @@ metadata:
     app: spring-boot-grpc-service
     backstage.io/kubernetes-id: spring-boot-grpc-service
   name: spring-boot-grpc-service
+  namespace: {{ .Values.config.namespace }}
 spec:
   replicas: 1
   selector:
@@ -20,8 +21,8 @@ spec:
         backstage.io/kubernetes-id: spring-boot-grpc-service
     spec:
       containers:
-      - image: spring-boot-grpc-service:0.0.1-SNAPSHOT
-        imagePullPolicy: Never
+      - image: {{ .Values.config.image }}
+        imagePullPolicy: IfNotPresent
         name: spring-boot-grpc-service
         resources: {}
         ports:
@@ -32,23 +33,3 @@ spec:
             port: 8080
           periodSeconds: 5
 status: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  creationTimestamp: null
-  labels:
-    app: spring-boot-grpc-service
-    backstage.io/kubernetes-id: spring-boot-grpc-service
-  name: spring-boot-grpc-service
-spec:
-  ports:
-  - name: 8080-8080
-    port: 8080
-    protocol: TCP
-    targetPort: 8080
-  selector:
-    app: spring-boot-grpc-service
-  type: ClusterIP
-status:
-  loadBalancer: {}
