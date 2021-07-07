@@ -1,3 +1,4 @@
+{{- define "service" }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -5,8 +6,8 @@ metadata:
   labels:
     app: spring-boot-grpc-service
     backstage.io/kubernetes-id: spring-boot-grpc-service
-  name: spring-boot-grpc-service
-  namespace: {{ .Values.config.namespace }}
+    slot: {{ .slot }}
+  name: spring-boot-grpc-service-{{ .slot }}
 spec:
   ports:
   - name: 8080-8080
@@ -14,4 +15,5 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    app: spring-boot-grpc-service
+    slot: {{ .slot }}
+{{- end }}

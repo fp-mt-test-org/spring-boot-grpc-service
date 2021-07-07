@@ -1,3 +1,4 @@
+{{- define "deployment" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,8 +6,8 @@ metadata:
   labels:
     app: spring-boot-grpc-service
     backstage.io/kubernetes-id: spring-boot-grpc-service
-  name: spring-boot-grpc-service
-  namespace: {{ .Values.config.namespace }}
+    slot: {{ .slot }}
+  name: spring-boot-grpc-service-{{ .slot }}
 spec:
   replicas: 1
   selector:
@@ -19,6 +20,7 @@ spec:
       labels:
         app: spring-boot-grpc-service
         backstage.io/kubernetes-id: spring-boot-grpc-service
+        slot: {{ .slot }}
     spec:
       containers:
       - image: {{ .Values.config.image }}
@@ -33,3 +35,4 @@ spec:
             port: 8080
           periodSeconds: 5
 status: {}
+{{- end }}
