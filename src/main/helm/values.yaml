@@ -1,0 +1,3 @@
+config:
+  host: spring-boot-grpc-service.nonp-dev-4.use1.eng-nonprod.flexport.internal
+  image: artifactory.flexport.io/spring-boot-grpc-service-docker-dev-local/spring-boot-grpc-service:0.0.1-SNAPSHOT

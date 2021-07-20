@@ -14,6 +14,24 @@ chmod 600 ~/.kube/config
 
 echo "--- Deployment for EngDev04 us-east-1 region"
 kubectl config use-context arn:aws:eks:us-east-1:238801556584:cluster/fpff-nonprod-use1-b
-kubectl create namespace spring-boot-grpc-service-dev --dry-run=client -o yaml | kubectl apply -f -
-kubectl create namespace spring-boot-grpc-service-staging --dry-run=client -o yaml | kubectl apply -f -
-helm upgrade --install --atomic spring-boot-grpc-service src/main/helm -n default -f src/main/helm/values-$ENV.yaml
+namespace=spring-boot-grpc-service-$([ "$ENV" == "pr" ] && git rev-parse --short HEAD || echo "$ENV")
+serving_slot=$(helm -n $namespace get values spring-boot-grpc-service --output json | jq -r '.config.servingSlot // empty')
+serving_slot=${serving_slot:-blue}
+non_serving_slot=$([ "$serving_slot" == "blue" ] && echo "green" || echo "blue")
+helm upgrade --install --atomic spring-boot-grpc-service src/main/helm -f src/main/helm/values.yaml -n $namespace \
+    --create-namespace --set config.servingSlot=$serving_slot --set config.nonServingSlot=$non_serving_slot \
+    --set "config.enabled={$serving_slot,$non_serving_slot}"
+
+echo "--- Post-deploy validation"
+test_exit=0
+helm test -n $namespace spring-boot-grpc-service || test_exit=1
+
+if [ $ENV != "dev" ]; then
+    kubectl delete ns $namespace
+    exit $test_exit
+fi
+
+serving_slot=$([ "$test_exit" -eq 0 ] && echo $non_serving_slot || echo $serving_slot)
+helm upgrade --install --atomic spring-boot-grpc-service src/main/helm -f src/main/helm/values.yaml -n $namespace \
+    --set config.servingSlot=$serving_slot --set "config.enabled={$serving_slot}"
+exit $test_exit

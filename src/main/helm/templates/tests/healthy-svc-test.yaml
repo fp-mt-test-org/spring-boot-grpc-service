@@ -1,0 +1,18 @@
+{{- if .Values.config.nonServingSlot }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "healthy-svc-test"
+  namespace: {{ .Release.namespace }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: healthy-svc-test
+      image: curlimages/curl:7.77.0
+      imagePullPolicy: IfNotPresent
+      command:
+        - curl
+        - spring-boot-grpc-service-{{ .Values.config.nonServingSlot }}.{{ .Release.Namespace }}.svc.cluster.local:8080/actuator/health
+  restartPolicy: Never
+{{- end }}
